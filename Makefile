@@ -6,7 +6,7 @@
 #    By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/17 10:11:24 by fkrug             #+#    #+#              #
-#    Updated: 2023/04/17 11:02:32 by fkrug            ###   ########.fr        #
+#    Updated: 2023/04/18 12:31:05 by fkrug            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,9 +27,9 @@ $(NAME): $(SRC) $(OBJ)
 
 test:
 	@$(CC) -o a.out test.c -L. -lget_next_line
-	@echo "Test file:"
-	@cat test1.txt
-	@echo "|-->end"
+#	@echo "Test file:"
+#	@cat test1.txt
+#	@echo "|-->end"
 	@./a.out
 
 clean:
