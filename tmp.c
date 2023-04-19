@@ -54,3 +54,44 @@ char *get_next_line(int fd)
 	// printf("Contents of static buffer: %s|<<", buffer);
 	return (0);
 }
+
+char *get_newline(int fd, char *buffer, int *ov, int id)
+{
+	
+	ssize_t		sz;
+	int			c;
+	char		tmp_buffer[BUFFER_SIZE + 1];
+	char		*nl;
+
+	c = 0;
+	(*ov)++;
+	sz = read(fd, tmp_buffer, BUFFER_SIZE);
+	if (sz == 0)
+		return (NULL);
+	tmp_buffer[sz] = '\0';
+	while (c < sz)
+	{
+		if (tmp_buffer[c++] == '\n')
+		{
+			printf("ENDRECURSIONTemp_buffer: %s|<<\nreturn(): %d; Function call: %d\n", tmp_buffer, (int) sz, *ov);
+			nl = (char *) malloc(id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
+			nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
+			while (--c >=0)
+				nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+			// c = -1;
+			// while (++c < sz)
+			// 	buffer[c] = tmp_buffer[c];
+			return (nl);
+		}
+	}
+	nl = get_newline(fd, buffer, ov);
+	(*ov)--;
+	c = sz;
+	while (--c >= 0)
+	{
+		printf("Return value: %s Acces recursive stack values: %c at index: %d\n", nl,tmp_buffer[c], c);
+		nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+	}
+	printf("Temp_buffer: %s|<<\nreturn(): %d; Function call: %d\n", tmp_buffer, (int) sz, *ov);
+	return (nl);
+}
