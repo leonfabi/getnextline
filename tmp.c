@@ -25,3 +25,32 @@ char *get_static_buffer(char *buffer)
 	nl[fill] = '\0';
 	return (nl);
 }
+
+char *get_next_line(int fd)
+{
+	static char	buffer[BUFFER_SIZE + 1];
+	int			id;
+	int			ov;
+
+	id = get_static_buffer(buffer);
+	ov = 0;
+	if (id == 0 || (id == BUFFER_SIZE && buffer[id] == '\n'))
+	{
+		printf("Neue Zeile einlesen c = %d\n", id);
+		get_newline(fd, buffer, &ov, id);
+	}
+	// while (c < BUFFER_SIZE + 1)
+	// {
+	// 	if (buffer[c] != 0)
+	// 	{
+	// 		printf("\nEs steht was im buffer: %s", buffer);
+	// 		printf("\nDie neue Zeile ist: %s", get_static_buffer(buffer));
+	// 		printf("\nDer Buffer sieht nun so aus: %s End of FUNCTIONCALL", buffer);
+	// 		return (NULL);
+	// 	}
+	// 	c++;
+	// }
+	//printf("\nDie neue Zeile ist: %s", get_static_buffer(buffer));
+	// printf("Contents of static buffer: %s|<<", buffer);
+	return (0);
+}

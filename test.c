@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/18 12:55:13 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/18 13:25:55 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,23 @@ char *get_newline(int fd, char *buffer, int *ov)
 		{
 			printf("ENDRECURSIONTemp_buffer: %s|<<\nreturn(): %d; Function call: %d\n", tmp_buffer, (int) sz, *ov);
 			nl = (char *) malloc(sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
-			c = -1;
-			while (++c < sz)
-				buffer[c] = tmp_buffer[c];
+			nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
+			while (--c >=0)
+				nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+			// c = -1;
+			// while (++c < sz)
+			// 	buffer[c] = tmp_buffer[c];
 			return (nl);
 		}
 	}
-	get_newline(fd, buffer, ov);
+	nl = get_newline(fd, buffer, ov);
 	(*ov)--;
 	c = sz;
 	while (--c >= 0)
-		printf("Acces recursive stack values: %c\n",tmp_buffer[c]);
+	{
+		printf("Return value: %s Acces recursive stack values: %c at index: %d\n", nl,tmp_buffer[c], c);
+		nl[sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+	}
 	printf("Temp_buffer: %s|<<\nreturn(): %d; Function call: %d\n", tmp_buffer, (int) sz, *ov);
 	return (nl);
 }
@@ -55,7 +61,7 @@ int get_static_buffer(char *buffer)
 	id = 0;
 	while (buffer[id] != '\0')
 	{
-		printf("buffer[%d]=%c", id, buffer[id]);
+		//printf("buffer[%d]=%c", id, buffer[id]);
 		if (buffer[id] == '\n')
 			return (id + 1);
 		id++;
@@ -73,21 +79,12 @@ char *get_next_line(int fd)
 	if (id == 0 || (id == BUFFER_SIZE && buffer[id] == '\n'))
 	{
 		printf("Neue Zeile einlesen c = %d\n", id);
-		get_newline(fd, buffer, &ov);
+		return get_newline(fd, buffer, &ov);
 	}
-	// while (c < BUFFER_SIZE + 1)
-	// {
-	// 	if (buffer[c] != 0)
-	// 	{
-	// 		printf("\nEs steht was im buffer: %s", buffer);
-	// 		printf("\nDie neue Zeile ist: %s", get_static_buffer(buffer));
-	// 		printf("\nDer Buffer sieht nun so aus: %s End of FUNCTIONCALL", buffer);
-	// 		return (NULL);
-	// 	}
-	// 	c++;
-	// }
-	//printf("\nDie neue Zeile ist: %s", get_static_buffer(buffer));
-	// printf("Contents of static buffer: %s|<<", buffer);
+	else
+	{
+		
+	}
 	return (0);
 }
 int	main()
@@ -100,8 +97,8 @@ int	main()
 	// printf("Testing the get_static_buffer function. \n Input string: %s", str);
 	// printf("\nOutput: %d", get_static_buffer(str));
 	//char *c = (char *) malloc(BUFFER_SIZE * sizeof(char));
-	get_next_line(fd);
-	get_next_line(fd);
+	printf("Line to print: %s",get_next_line(fd));
+	//get_next_line(fd);
 	// get_next_line(fd);
 	// printf("Newline check: %d\n",get_newline(fd));
 	//printf("called read(% d, c, %d). returned that %d bytes were read.\n", fd, LENGTH, sz);
