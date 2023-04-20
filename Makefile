@@ -6,14 +6,14 @@
 #    By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/17 10:11:24 by fkrug             #+#    #+#              #
-#    Updated: 2023/04/18 12:31:05 by fkrug            ###   ########.fr        #
+#    Updated: 2023/04/20 09:28:26 by fkrug            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libget_next_line.a
 
 CC = cc
-#CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra
 
 SRC = get_next_line.c get_next_line_utils.c
 
