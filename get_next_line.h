@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 10:12:39 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 11:46:38 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 15:20:54 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # ifndef BUFFER_SIZE
-	# define BUFFER_SIZE 1000
+	# define BUFFER_SIZE 10000
 # endif
 	char *get_next_line(int fd);
 #endif

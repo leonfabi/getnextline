@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 13:05:22 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 15:20:41 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,53 +29,40 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buffer, int c, int cpy)
 	}
 	return (buffer);
 }
-char *get_newline(int fd, char *buffer, int nb, int size)
+char *get_newline(int fd, char *buffer, int size)
 {
 	
 	ssize_t		sz;
 	int			c;
 	char		tmp_buffer[BUFFER_SIZE + 1];
 	char		*nl;
-	int			c_id;
 
 	c = 0;
-	c_id = nb;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
 	tmp_buffer[sz] = '\0';
-	while (c < sz)
+	while (tmp_buffer[c] != '\0' && tmp_buffer[c] != '\n')
+		c++;
+	//printf("Begin of newline_fc\nstat_buf:>>|%s|<<\ntmp_buf:>>|%s|<<\ntemp_buf[%i]=>>|%c|<<\nsize:%d\n",buffer,tmp_buffer,c,tmp_buffer[c],size);
+	if (tmp_buffer[c] != '\n' && sz != 0)
 	{
-		if (tmp_buffer[c++] == '\n')
-		{
-			nl = (char *) malloc(sizeof(char) * (size + 1 + c));
-			if (nl == NULL)
-				return (NULL);
-			nl[size + c] = '\0';
-			while (--(c_id) >= 0)
-				nl[c_id] = buffer[c_id];
-			shift_stat_buffer(buffer, tmp_buffer, c, 1);
-			while (--c >= 0)
-				nl[size + c] = tmp_buffer[c];
-			return (nl);
-		}
+		//printf("RECURSIVECALL\n");
+		nl = get_newline(fd, buffer, size + sz);
 	}
-	if (size == 0 && sz == 0)
+	else if (size == 0 && sz == 0)
 		return (NULL);
-	else if (sz == 0)
+	else
 	{
+		if (tmp_buffer[c] == '\n')
+			c++;
 		nl = (char *) malloc(sizeof(char) * (size + 1 + c));
 		if (nl == NULL)
 			return (NULL);
 		nl[size + c] = '\0';
-		while (--(c_id) >= 0)
-			nl[c_id] = buffer[c_id];
+		//printf("CALL\nstat_buf:>>|%s|<<\n",buffer);
 		shift_stat_buffer(buffer, tmp_buffer, c, 1);
-		while (--c >= 0)
-			nl[size + c] = tmp_buffer[c];
-		return (nl);
+		//printf("After shift\nstat_buf:>>|%s|<<\n",buffer);
 	}
-	nl = get_newline(fd, buffer, nb, size + sz);
-	if (nl == NULL)
-		return (NULL);
+	//printf("CALL2: tmp_buffer >>|%s|<< size: %d c: %d\n",tmp_buffer, size, c);
 	while (--c >= 0)
 		nl[size + c] = tmp_buffer[c];
 	return (nl);
@@ -100,11 +87,17 @@ char *get_newline_from_buffer(char *buffer, int id)
 char *get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
+	char		t_bf[BUFFER_SIZE + 1];
 	int			id;
 	int			ov;
+	char		*nl;
 
-	id = 0;
+	id = -1;
 	ov = 0;
+	while (++id <= BUFFER_SIZE)
+		t_bf[id] = buffer[id];
+	id = 0;
+	nl = NULL;
 	if (fd < 0 || fd > 256 || BUFFER_SIZE < 1)
 		return (NULL);
 	while (buffer[id] != '\0' && buffer[id] != '\n')
@@ -112,7 +105,13 @@ char *get_next_line(int fd)
 	if (buffer[id] == '\n')
 		return (get_newline_from_buffer(buffer, id));
 	else
-		return (get_newline(fd, buffer, id, id));
+	{
+		//printf("CALLGETNEWLINE number to copy from old= %d\n",id);
+		nl = get_newline(fd, buffer, id);
+		while (--id >= 0)
+			nl[id] = t_bf[id];
+		return (nl);
+	}
 	return (0);
 }
 
