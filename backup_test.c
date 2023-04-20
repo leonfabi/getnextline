@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 10:38:30 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 11:06:44 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,16 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buffer, int *c, int cpy)
 	int	shift;
 
 	shift = -1;
-	//printf("\t\t\tshift_stat_buffer_call, Index:>>|%i|<<\n", *c);
 	while (tmp_buffer[++shift] && cpy)
-	{
-		// printf("\t\t\tWhile tmp_buffer[%i]:%c|<<\n", shift, tmp_buffer[shift]);
 		buffer[shift] = tmp_buffer[shift];
-	}
-	//printf("\t\t\ttmp_buffer:>>|%s|<<\n", tmp_buffer);
 	shift = -1;
 	while (buffer[++shift])
 	{
-		// printf("\t\t\tWhile buffer[%i]:%c|<<\n", shift, buffer[shift]);
 		if ((*c + shift) > BUFFER_SIZE)
 			buffer[shift] = '\0';
 		else
 			buffer[shift] = tmp_buffer[shift + *c];
 	}
-	//printf("\t\t\tstatic buffer:>>|%s|<<\n", buffer);
 	return (buffer);
 }
 char *get_newline(int fd, char *buffer, int *ov, int *id)
@@ -48,24 +41,17 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 	c = 0;
 	c_id = *id;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
-	//printf("SZ: %ld\n", sz);
 	(*ov)++;
 	tmp_buffer[sz] = '\0';
 	while (c < sz)
 	{
 		if (tmp_buffer[c++] == '\n')
 		{
-			//printf("\t\tEnd of Recursion Memory allocation\n\t\ttmp_buffer: >>|%s|<<\n", tmp_buffer);
 			nl = (char *) malloc(*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
 			nl[*id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
 			while (--(c_id) >= 0)
-			{
 				nl[c_id] = buffer[c_id];
-				//printf("\t\tnl[%d]=buffer[%d]=%c\n", c_id, c_id, buffer[c_id]);
-			}
-			//printf("\t\tstatic_buffer before shift:>>|%s|<<\n",buffer);
 			shift_stat_buffer(buffer, tmp_buffer, &c, 1);
-			//printf("\t\tstatic_buffer after shift:>>|%s|<<\n",buffer);
 			while (--c >= 0)
 				nl[*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
 			return (nl);
@@ -80,11 +66,7 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 			nl = (char *) malloc(*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
 			nl[*id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
 			while (--(c_id) >= 0)
-			{
 				nl[c_id] = buffer[c_id];
-				//printf("\t\tnl[%d]=buffer[%d]=%c\n", c_id, c_id, buffer[c_id]);
-			}
-			//printf("\t\tstatic_buffer:>>|%s|<<\n",shift_stat_buffer(buffer, tmp_buffer, &c, 1));
 			shift_stat_buffer(buffer, tmp_buffer, &c, 1);
 			while (--c >= 0)
 				nl[*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
@@ -104,7 +86,6 @@ int get_static_buffer(char *buffer, int *id)
 {
 	while (buffer[*id] != '\0')
 	{
-		//printf("buffer[%d]=%c", id, buffer[id]);
 		if (buffer[*id] == '\n')
 			return (0);
 		(*id)++;
@@ -125,24 +106,16 @@ char *get_next_line(int fd)
 	ov = 0;
 	c_id = id;
 	if (newline)
-	{
-		//printf("\tNeue Zeile einlesen id = %d\n", id);
 		return (get_newline(fd, buffer, &ov, &id));
-	}
 	else
 	{
 		c_id++;
 		id++;
-		//printf("\tNichts neu einlesen. Statischer buffer: >>|%s|<<. ID: %d\n", buffer, c_id);
 		nl = (char *)malloc(id * sizeof(char) + 1);
 		nl[c_id] = '\0';
 		while (--c_id >= 0)
-		{
 			nl[c_id] = buffer[c_id];
-			//printf("\t\tnl[%d]=buffer[%d]=%c\n", c_id, c_id, buffer[c_id]);
-		}
-		shift_stat_buffer(buffer, buffer, &id, 0);
-		//printf("\tEnde. Statischer buffer: >>|%s|<<. ID: %d\n", buffer, c_id);
+		shift_stat_buffer(buffer, buffer, &id, 1);
 		
 		return (nl);
 	}
