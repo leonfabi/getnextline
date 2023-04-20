@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 11:05:30 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 11:45:08 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,35 +92,41 @@ int get_static_buffer(char *buffer, int *id)
 	}
 	return (1);
 }
+char *get_newline_from_buffer(char *buffer, int *id)
+{
+	int		c_id;
+	char	*nl;
+
+	c_id = *id + 1;
+	(*id)++;
+	nl = (char *)malloc(*id * sizeof(char) + 1);
+	if (nl == NULL)
+		return (NULL);
+	nl[c_id] = '\0';
+	while (--c_id >= 0)
+		nl[c_id] = buffer[c_id];
+	shift_stat_buffer(buffer, buffer, id, 1);
+	return (nl);
+}
 char *get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
 	int			id;
 	int			ov;
 	int			newline;
-	char		*nl;
-	int			c_id;
 
 	id = 0;
 	newline = get_static_buffer(buffer, &id);
 	ov = 0;
-	c_id = id;
+	if (fd < 0 || fd > 256 || BUFFER_SIZE < 1)
+		return (NULL);
 	if (newline)
 		return (get_newline(fd, buffer, &ov, &id));
 	else
-	{
-		c_id++;
-		id++;
-		nl = (char *)malloc(id * sizeof(char) + 1);
-		nl[c_id] = '\0';
-		while (--c_id >= 0)
-			nl[c_id] = buffer[c_id];
-		shift_stat_buffer(buffer, buffer, &id, 1);
-		
-		return (nl);
-	}
+		return (get_newline_from_buffer(buffer, &id));
 	return (0);
 }
+
 #include <string.h>
 int	main()
 {
