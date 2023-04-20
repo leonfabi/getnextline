@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 10:23:09 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 10:36:30 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,14 +48,14 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 	c = 0;
 	c_id = *id;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
-	printf("SZ: %ld\n", sz);
+	//printf("SZ: %ld\n", sz);
 	(*ov)++;
 	tmp_buffer[sz] = '\0';
 	while (c < sz)
 	{
 		if (tmp_buffer[c++] == '\n')
 		{
-			printf("\t\tEnd of Recursion Memory allocation\n\t\ttmp_buffer: >>|%s|<<\n", tmp_buffer);
+			//printf("\t\tEnd of Recursion Memory allocation\n\t\ttmp_buffer: >>|%s|<<\n", tmp_buffer);
 			nl = (char *) malloc(*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
 			nl[*id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
 			while (--(c_id) >= 0)
@@ -118,10 +118,12 @@ char *get_next_line(int fd)
 	int			ov;
 	int			newline;
 	char		*nl;
+	int			c_id;
 
 	id = 0;
 	newline = get_static_buffer(buffer, &id);
 	ov = 0;
+	c_id = id;
 	if (newline)
 	{
 		//printf("\tNeue Zeile einlesen id = %d\n", id);
@@ -129,15 +131,19 @@ char *get_next_line(int fd)
 	}
 	else
 	{
-		//printf("\tStatischer buffer> %s\n",buffer);
+		c_id++;
+		id++;
+		//printf("\tNichts neu einlesen. Statischer buffer: >>|%s|<<. ID: %d\n", buffer, c_id);
 		nl = (char *)malloc(id * sizeof(char) + 1);
-		nl[id] = '\0';
-		while (--id >= 0)
+		nl[c_id] = '\0';
+		while (--c_id >= 0)
 		{
-			nl[id] = buffer[id];
+			nl[c_id] = buffer[c_id];
 			//printf("\t\tnl[%d]=buffer[%d]=%c\n", c_id, c_id, buffer[c_id]);
 		}
 		shift_stat_buffer(buffer, buffer, &id, 0);
+		//printf("\tEnde. Statischer buffer: >>|%s|<<. ID: %d\n", buffer, c_id);
+		
 		return (nl);
 	}
 	return (0);
@@ -177,9 +183,9 @@ int	main()
 	printf("|<<\nBuffersize: %d\n", BUFFER_SIZE);
 	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
 	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
-	// printf("Line to print: >>|%s|<<\n",get_next_line(fd));
-	// printf("Line to print: >>|%s|<<\n",get_next_line(fd));
-	// printf("Line to print: %s|<<\n",get_next_line(fd));
+	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
+	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
+	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
 	//get_next_line(fd);
 	// get_next_line(fd);
 	// printf("Newline check: %d\n",get_newline(fd));
