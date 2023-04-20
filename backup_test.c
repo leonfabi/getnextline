@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 11:48:51 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 12:24:29 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buffer, int *c, int cpy)
 	}
 	return (buffer);
 }
-char *get_newline(int fd, char *buffer, int *ov, int *id)
+char *get_newline(int fd, char *buffer, int *ov, int id)
 {
 	
 	ssize_t		sz;
@@ -39,7 +39,7 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 	int			c_id;
 
 	c = 0;
-	c_id = *id;
+	c_id = id;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
 	(*ov)++;
 	tmp_buffer[sz] = '\0';
@@ -47,29 +47,29 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 	{
 		if (tmp_buffer[c++] == '\n')
 		{
-			nl = (char *) malloc(*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
-			nl[*id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
+			nl = (char *) malloc(id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
+			nl[id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
 			while (--(c_id) >= 0)
 				nl[c_id] = buffer[c_id];
 			shift_stat_buffer(buffer, tmp_buffer, &c, 1);
 			while (--c >= 0)
-				nl[*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+				nl[id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
 			return (nl);
 		}
 	}
 	if (sz == 0)
 	{
-		if ((*ov - 1) == 0 && *id == 0)
+		if ((*ov - 1) == 0 && id == 0)
 			return (NULL);
 		else
 		{
-			nl = (char *) malloc(*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
-			nl[*id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
+			nl = (char *) malloc(id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c + 1);
+			nl[id +sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = '\0';
 			while (--(c_id) >= 0)
 				nl[c_id] = buffer[c_id];
 			shift_stat_buffer(buffer, tmp_buffer, &c, 1);
 			while (--c >= 0)
-				nl[*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+				nl[id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
 			return (nl);
 		}
 	}
@@ -77,7 +77,7 @@ char *get_newline(int fd, char *buffer, int *ov, int *id)
 	(*ov)--;
 	c = sz;
 	while (--c >= 0)
-		nl[*id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
+		nl[id + sizeof(char) * (*ov - 1) * BUFFER_SIZE + c] = tmp_buffer[c];
 	return (nl);
 }
 
@@ -92,20 +92,20 @@ int get_static_buffer(char *buffer, int *id)
 	}
 	return (1);
 }
-char *get_newline_from_buffer(char *buffer, int *id)
+char *get_newline_from_buffer(char *buffer, int id)
 {
 	int		c_id;
 	char	*nl;
 
-	c_id = *id + 1;
-	(*id)++;
-	nl = (char *)malloc(*id * sizeof(char) + 1);
+	c_id = id + 1;
+	(id)++;
+	nl = (char *)malloc(id * sizeof(char) + 1);
 	if (nl == NULL)
 		return (NULL);
 	nl[c_id] = '\0';
 	while (--c_id >= 0)
 		nl[c_id] = buffer[c_id];
-	shift_stat_buffer(buffer, buffer, id, 1);
+	shift_stat_buffer(buffer, buffer, &id, 1);
 	return (nl);
 }
 char *get_next_line(int fd)
@@ -113,17 +113,17 @@ char *get_next_line(int fd)
 	static char	buffer[BUFFER_SIZE + 1];
 	int			id;
 	int			ov;
-	int			newline;
 
 	id = 0;
-	newline = get_static_buffer(buffer, &id);
 	ov = 0;
 	if (fd < 0 || fd > 256 || BUFFER_SIZE < 1)
 		return (NULL);
-	if (newline)
-		return (get_newline(fd, buffer, &ov, &id));
+	while (buffer[id] != '\0' && buffer[id] != '\n')
+		id++;
+	if (buffer[id] == '\n')
+		return (get_newline_from_buffer(buffer, id));
 	else
-		return (get_newline_from_buffer(buffer, &id));
+		return (get_newline(fd, buffer, &ov, id));
 	return (0);
 }
 
