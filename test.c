@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/13 11:27:24 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 15:20:41 by fkrug            ###   ########.fr       */
+/*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
+/*   Updated: 2023/04/20 17:29:40 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,26 +29,41 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buffer, int c, int cpy)
 	}
 	return (buffer);
 }
-char *get_newline(int fd, char *buffer, int size)
+
+ssize_t		read_fd(int fd, char *tmp_buffer)
 {
-	
 	ssize_t		sz;
-	int			c;
+
+	sz = read(fd, tmp_buffer, BUFFER_SIZE);
+	if (sz < 0)
+		return (-1);
+	else
+	{
+		if (sz >= 0)
+			tmp_buffer[sz] = '\0';
+		sz = 0;
+		while (tmp_buffer[sz] != '\0' && tmp_buffer[sz] != '\n')
+			sz++;
+	}
+	return (sz);
+}
+
+char	*get_newline(int fd, char *buffer, int size)
+{
+	ssize_t		sz;
+	ssize_t		c;
 	char		tmp_buffer[BUFFER_SIZE + 1];
 	char		*nl;
 
 	c = 0;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
-	tmp_buffer[sz] = '\0';
+	if (sz >= 0)
+		tmp_buffer[sz] = '\0';
 	while (tmp_buffer[c] != '\0' && tmp_buffer[c] != '\n')
 		c++;
-	//printf("Begin of newline_fc\nstat_buf:>>|%s|<<\ntmp_buf:>>|%s|<<\ntemp_buf[%i]=>>|%c|<<\nsize:%d\n",buffer,tmp_buffer,c,tmp_buffer[c],size);
-	if (tmp_buffer[c] != '\n' && sz != 0)
-	{
-		//printf("RECURSIVECALL\n");
-		nl = get_newline(fd, buffer, size + sz);
-	}
-	else if (size == 0 && sz == 0)
+	if (tmp_buffer[c] != '\n' && sz > 0)
+		nl = get_newline(fd, buffer, size + c);
+	else if ((size == 0 && sz == 0) || sz == -1)
 		return (NULL);
 	else
 	{
@@ -58,17 +73,13 @@ char *get_newline(int fd, char *buffer, int size)
 		if (nl == NULL)
 			return (NULL);
 		nl[size + c] = '\0';
-		//printf("CALL\nstat_buf:>>|%s|<<\n",buffer);
 		shift_stat_buffer(buffer, tmp_buffer, c, 1);
-		//printf("After shift\nstat_buf:>>|%s|<<\n",buffer);
 	}
-	//printf("CALL2: tmp_buffer >>|%s|<< size: %d c: %d\n",tmp_buffer, size, c);
 	while (--c >= 0)
 		nl[size + c] = tmp_buffer[c];
 	return (nl);
 }
-
-char *get_newline_from_buffer(char *buffer, int id)
+char	*get_newline_from_buffer(char *buffer, int id)
 {
 	int		c_id;
 	char	*nl;
@@ -84,16 +95,15 @@ char *get_newline_from_buffer(char *buffer, int id)
 	shift_stat_buffer(buffer, buffer, id, 1);
 	return (nl);
 }
-char *get_next_line(int fd)
+
+char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
 	char		t_bf[BUFFER_SIZE + 1];
 	int			id;
-	int			ov;
 	char		*nl;
-
+	
 	id = -1;
-	ov = 0;
 	while (++id <= BUFFER_SIZE)
 		t_bf[id] = buffer[id];
 	id = 0;
@@ -106,7 +116,6 @@ char *get_next_line(int fd)
 		return (get_newline_from_buffer(buffer, id));
 	else
 	{
-		//printf("CALLGETNEWLINE number to copy from old= %d\n",id);
 		nl = get_newline(fd, buffer, id);
 		while (--id >= 0)
 			nl[id] = t_bf[id];
@@ -116,13 +125,19 @@ char *get_next_line(int fd)
 }
 
 #include <string.h>
+#include <signal.h>
+void handle_sigsegv(int signal) {
+    printf("Segmentation fault\n");
+    exit(EXIT_FAILURE);
+}
+
 int	main()
 {
 	int		fd;
 	int		sz;	
 	//###############
 	FILE *fptr;
-
+	signal(SIGSEGV, handle_sigsegv);
 	char c;
 	// Open file
 	fptr = fopen("test1.txt", "r");
@@ -151,8 +166,8 @@ int	main()
 	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
 	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
 	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
-	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
-	printf("Line to print: >>|%s|<<\n",get_next_line(fd));
+	// printf("Line to print: >>|%s|<<\n",get_next_line(fd));
+	// printf("Line to print: >>|%s|<<\n",get_next_line(fd));
 	//get_next_line(fd);
 	// get_next_line(fd);
 	// printf("Newline check: %d\n",get_newline(fd));
