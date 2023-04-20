@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/20 17:39:16 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/20 18:19:35 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,13 @@ char	*get_newline(int fd, char *buffer, int size)
 
 	c = 0;
 	sz = read(fd, tmp_buffer, BUFFER_SIZE);
+	if (sz < 0 || sz > BUFFER_SIZE)
+	{
+		buffer[0] = '\0';
+		return (NULL);
+	}
 	if (sz >= 0)
 		tmp_buffer[sz] = '\0';
-	if (sz < 0)
-		tmp_buffer[0] = '\0';
 	while (tmp_buffer[c] != '\0' && tmp_buffer[c] != '\n')
 		c++;
 	if (tmp_buffer[c] != '\n' && sz > 0)
@@ -107,7 +110,7 @@ char	*get_next_line(int fd)
 	char		t_bf[BUFFER_SIZE + 1];
 	int			id;
 	char		*nl;
-
+	
 	id = -1;
 	while (++id <= BUFFER_SIZE)
 		t_bf[id] = buffer[id];
@@ -122,7 +125,7 @@ char	*get_next_line(int fd)
 	else
 	{
 		nl = get_newline(fd, buffer, id);
-		while (--id >= 0)
+		while (--id >= 0 && nl != NULL)
 			nl[id] = t_bf[id];
 		return (nl);
 	}
