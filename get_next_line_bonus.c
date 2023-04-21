@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 11:25:08 by fkrug            ###   ########.fr       */
+/*   Created: 2023/04/21 10:56:00 by fkrug             #+#    #+#             */
+/*   Updated: 2023/04/21 11:22:02 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 {
@@ -89,25 +89,25 @@ char	*get_newline_from_buffer(char *buffer, ssize_t id)
 
 char	*get_next_line(int fd)
 {
-	static char	buffer[BUFFER_SIZE + 1];
+	static char	buffer[1024][BUFFER_SIZE + 1];
 	char		tmp_buf[BUFFER_SIZE + 1];
 	ssize_t		id;
 	char		*nl;
 
 	id = -1;
-	while (++id <= BUFFER_SIZE)
-		tmp_buf[id] = buffer[id];
+	while (++id <= BUFFER_SIZE && (fd > -1 && fd < 1024))
+		tmp_buf[id] = buffer[fd][id];
 	id = 0;
 	nl = NULL;
 	if (fd < 0 || fd > 1024 || BUFFER_SIZE < 1)
 		return (NULL);
-	while (buffer[id] != '\0' && buffer[id] != '\n')
+	while (buffer[fd][id] != '\0' && buffer[fd][id] != '\n')
 		id++;
-	if (buffer[id] == '\n')
-		return (get_newline_from_buffer(buffer, id));
+	if (buffer[fd][id] == '\n')
+		return (get_newline_from_buffer(buffer[fd], id));
 	else
 	{
-		nl = get_newline(fd, buffer, id);
+		nl = get_newline(fd, buffer[fd], id);
 		while (--id >= 0 && nl != NULL)
 			nl[id] = tmp_buf[id];
 		return (nl);
