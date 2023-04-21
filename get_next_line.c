@@ -6,18 +6,18 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 08:47:04 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/21 10:37:27 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*shift_stat_buffer(char *buffer, char *tmp_buf, int c, int cpy)
+char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 {
-	int	shift;
+	ssize_t	shift;
 
 	shift = -1;
-	while (tmp_buf[++shift] && cpy)
+	while (tmp_buf[++shift])
 		buffer[shift] = tmp_buf[shift];
 	shift = -1;
 	while (buffer[++shift])
@@ -30,28 +30,19 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buf, int c, int cpy)
 	return (buffer);
 }
 
-ssize_t		read_fd(int fd, char *tmp_buf, char *buffer)
+char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t size)
 {
-	ssize_t		sz;
+	char	*nl;
 
-	sz = read(fd, tmp_buf, BUFFER_SIZE);
-	if (sz < 0 || sz > BUFFER_SIZE)
-	{
-		buffer[0] = '\0';
-		return (-1);
-	}
-	else
-	{
-		if (sz >= 0)
-			tmp_buf[sz] = '\0';
-		//sz = 0;
-		//while (tmp_buf[sz] != '\0' && tmp_buf[sz] != '\n')
-		//	sz++;
-	}
-	return (sz);
+	nl = (char *) malloc(sizeof(char) * (size + 1 + c));
+	if (nl == NULL)
+		return (NULL);
+	nl[size + c] = '\0';
+	shift_stat_buffer(buffer, tmp_buf, c);
+	return (nl);
 }
 
-char	*get_newline(int fd, char *buffer, int size)
+char	*get_newline(int fd, char *buffer, ssize_t size)
 {
 	ssize_t		sz;
 	ssize_t		c;
@@ -60,33 +51,28 @@ char	*get_newline(int fd, char *buffer, int size)
 
 	c = 0;
 	sz = read_fd(fd, tmp_buf, buffer);
-	while (tmp_buf[c] != '\0' && tmp_buf[c] != '\n')
+	while (tmp_buf[c] != '\0' && tmp_buf[c] != '\n' && sz > 0)
 		c++;
 	if (tmp_buf[c] != '\n' && sz > 0)
-	{
 		nl = get_newline(fd, buffer, size + c);
-		if (nl == NULL)
-			return (NULL);
-	}
 	else if ((size == 0 && sz == 0) || sz == -1)
 		return (NULL);
 	else
 	{
 		if (tmp_buf[c] == '\n')
 			c++;
-		nl = (char *) malloc(sizeof(char) * (size + 1 + c));
-		if (nl == NULL)
-			return (NULL);
-		nl[size + c] = '\0';
-		shift_stat_buffer(buffer, tmp_buf, c, 1);
+		nl = allocate_case_zero(c, buffer, tmp_buf, size);
 	}
+	if (nl == NULL)
+		return (NULL);
 	while (--c >= 0)
 		nl[size + c] = tmp_buf[c];
 	return (nl);
 }
-char	*get_newline_from_buffer(char *buffer, int id)
+
+char	*get_newline_from_buffer(char *buffer, ssize_t id)
 {
-	int		c_id;
+	ssize_t		c_id;
 	char	*nl;
 
 	c_id = id + 1;
@@ -97,16 +83,17 @@ char	*get_newline_from_buffer(char *buffer, int id)
 	nl[c_id] = '\0';
 	while (--c_id >= 0)
 		nl[c_id] = buffer[c_id];
-	shift_stat_buffer(buffer, buffer, id, 1);
+	shift_stat_buffer(buffer, buffer, id);
 	return (nl);
 }
+
 char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
 	char		tmp_buf[BUFFER_SIZE + 1];
-	int			id;
+	ssize_t			id;
 	char		*nl;
-	
+
 	id = -1;
 	while (++id <= BUFFER_SIZE)
 		tmp_buf[id] = buffer[id];
