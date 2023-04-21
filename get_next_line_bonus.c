@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/21 10:56:00 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 11:22:02 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/21 13:32:20 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 	return (buffer);
 }
 
-char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
+char	*allocate(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 {
 	char	*nl;
 
@@ -61,7 +61,7 @@ char	*get_newline(int fd, char *buffer, ssize_t size)
 	{
 		if (tmp_buf[c] == '\n')
 			c++;
-		nl = allocate_case_zero(c, buffer, tmp_buf, size);
+		nl = allocate(c, buffer, tmp_buf, size);
 	}
 	if (nl == NULL)
 		return (NULL);

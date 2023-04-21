@@ -6,13 +6,13 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 11:25:08 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/21 13:29:00 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
+static char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 {
 	ssize_t	shift;
 
@@ -30,7 +30,7 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 	return (buffer);
 }
 
-char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
+static char	*allocate(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 {
 	char	*nl;
 
@@ -42,7 +42,7 @@ char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 	return (nl);
 }
 
-char	*get_newline(int fd, char *buffer, ssize_t size)
+static char	*get_newline(int fd, char *buffer, ssize_t size)
 {
 	ssize_t		sz;
 	ssize_t		c;
@@ -61,7 +61,7 @@ char	*get_newline(int fd, char *buffer, ssize_t size)
 	{
 		if (tmp_buf[c] == '\n')
 			c++;
-		nl = allocate_case_zero(c, buffer, tmp_buf, size);
+		nl = allocate(c, buffer, tmp_buf, size);
 	}
 	if (nl == NULL)
 		return (NULL);
@@ -70,7 +70,7 @@ char	*get_newline(int fd, char *buffer, ssize_t size)
 	return (nl);
 }
 
-char	*get_newline_from_buffer(char *buffer, ssize_t id)
+static char	*get_newline_from_buffer(char *buffer, ssize_t id)
 {
 	ssize_t	c_id;
 	char	*nl;
