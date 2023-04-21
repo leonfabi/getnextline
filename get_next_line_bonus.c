@@ -6,13 +6,13 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/21 10:56:00 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 13:32:20 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/21 13:37:43 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
+static char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 {
 	ssize_t	shift;
 
@@ -30,7 +30,7 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 	return (buffer);
 }
 
-char	*allocate(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
+static char	*allocate(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 {
 	char	*nl;
 
@@ -42,7 +42,7 @@ char	*allocate(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 	return (nl);
 }
 
-char	*get_newline(int fd, char *buffer, ssize_t size)
+static char	*get_newline(int fd, char *buffer, ssize_t size)
 {
 	ssize_t		sz;
 	ssize_t		c;
@@ -70,7 +70,7 @@ char	*get_newline(int fd, char *buffer, ssize_t size)
 	return (nl);
 }
 
-char	*get_newline_from_buffer(char *buffer, ssize_t id)
+static char	*get_newline_from_buffer(char *buffer, ssize_t id)
 {
 	ssize_t	c_id;
 	char	*nl;
