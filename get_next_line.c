@@ -6,7 +6,7 @@
 /*   By: fkrug <fkrug@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 09:50:55 by fkrug             #+#    #+#             */
-/*   Updated: 2023/04/21 10:37:27 by fkrug            ###   ########.fr       */
+/*   Updated: 2023/04/21 10:40:39 by fkrug            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ char	*shift_stat_buffer(char *buffer, char *tmp_buf, ssize_t c)
 	return (buffer);
 }
 
-char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t size)
+char	*allocate_case_zero(ssize_t c, char *buffer, char *tmp_buf, ssize_t siz)
 {
 	char	*nl;
 
-	nl = (char *) malloc(sizeof(char) * (size + 1 + c));
+	nl = (char *) malloc(sizeof(char) * (siz + 1 + c));
 	if (nl == NULL)
 		return (NULL);
-	nl[size + c] = '\0';
+	nl[siz + c] = '\0';
 	shift_stat_buffer(buffer, tmp_buf, c);
 	return (nl);
 }
@@ -72,7 +72,7 @@ char	*get_newline(int fd, char *buffer, ssize_t size)
 
 char	*get_newline_from_buffer(char *buffer, ssize_t id)
 {
-	ssize_t		c_id;
+	ssize_t	c_id;
 	char	*nl;
 
 	c_id = id + 1;
@@ -91,7 +91,7 @@ char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
 	char		tmp_buf[BUFFER_SIZE + 1];
-	ssize_t			id;
+	ssize_t		id;
 	char		*nl;
 
 	id = -1;
